@@ -2,40 +2,40 @@ document.addEventListener('DOMContentLoaded', function() {
     const resultDiv = document.getElementById('result');
     const copyButton = document.getElementById('copyButton');
     const copyMessage = document.getElementById('copyMessage');
-    const error1 = document.getElementById('error1');
-    const error2 = document.getElementById('error2');
+    const tobiLineError = document.getElementById('tobiLineError');
+    const tobareLineError = document.getElementById('tobareLineError');
     const generalError = document.getElementById('generalError');
-    const input1 = document.getElementById('number1');
-    const input2 = document.getElementById('number2');
+    const tobiLine = document.getElementById('tobiLine');
+    const tobareLine = document.getElementById('tobareLine');
 
     // エラーメッセージをリセット
     function resetErrors() {
-        error1.classList.add('hidden');
-        error2.classList.add('hidden');
+        tobiLineError.classList.add('hidden');
+        tobareLineError.classList.add('hidden');
         generalError.classList.add('hidden');
-        input1.classList.remove('border-red-500');
-        input2.classList.remove('border-red-500');
+        tobiLine.classList.remove('border-red-500');
+        tobareLine.classList.remove('border-red-500');
     }
 
     // 入力フィールドの変更時にエラーをクリア
-    input1.addEventListener('input', function() {
-        error1.classList.add('hidden');
+    tobiLine.addEventListener('input', function() {
+        tobiLineError.classList.add('hidden');
         this.classList.remove('border-red-500');
         generalError.classList.add('hidden');
     });
 
-    input2.addEventListener('input', function() {
-        error2.classList.add('hidden');
+    tobareLine.addEventListener('input', function() {
+        tobareLineError.classList.add('hidden');
         this.classList.remove('border-red-500');
         generalError.classList.add('hidden');
     });
 
-    document.getElementById('myButton').addEventListener('click', function() {
+    document.getElementById('generateButton').addEventListener('click', function() {
         resetErrors();
         
-        // 必須フィールドのチェック
-        const num1 = input1.value;
-        const num2 = input2.value;
+        const num1 = tobiLine.value;
+        const num2 = tobareLine.value;
+        const num3 = document.getElementById('tanki').value || '';
         let hasError = false;
 
         if (!num1) {
@@ -54,9 +54,6 @@ document.addEventListener('DOMContentLoaded', function() {
             generalError.classList.remove('hidden');
             return;
         }
-
-        // 3つ目の数値は任意（空の場合は空文字として扱う）
-        const num3 = document.getElementById('number3').value || '';
 
         // 買い目の生成処理
         const kaime_line = [num1.toString(), num2.toString() + num3.toString()];
