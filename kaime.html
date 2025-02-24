@@ -12,63 +12,71 @@
     <div class="max-w-md mx-auto mt-8 bg-white p-6 rounded-xl shadow-md">
         <div class="space-y-6">
             <div class="flex flex-col items-center">
-                <label for="number1" class="text-gray-600 mb-2 font-medium">
+                <label for="tobiLine" class="text-gray-600 mb-2 font-medium">
                     飛びつきライン <span class="text-red-500">*</span>
                 </label>
                 <input type="tel" 
                        inputmode="numeric" 
                        pattern="[0-9]*"
-                       id="number1" 
+                       id="tobiLine" 
+                       name="tobiLine"
                        class="px-4 py-2 border border-gray-300 rounded-lg w-48 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                       placeholder="車番を入力"
+                       placeholder="飛びつきラインを入力"
+                       aria-label="飛びつきライン入力欄"
                        required>
-                <p id="error1" class="text-red-500 text-sm mt-1 hidden">この項目は必須です</p>
+                <p id="tobiLineError" class="text-red-500 text-sm mt-1 hidden">飛びつきラインは必須です</p>
             </div>
             
             <div class="flex flex-col items-center">
-                <label for="number2" class="text-gray-600 mb-2 font-medium">
+                <label for="tobareLine" class="text-gray-600 mb-2 font-medium">
                     飛びつかれライン <span class="text-red-500">*</span>
                 </label>
                 <input type="tel" 
                        inputmode="numeric" 
                        pattern="[0-9]*"
-                       id="number2" 
+                       id="tobareLine" 
+                       name="tobareLine"
                        class="px-4 py-2 border border-gray-300 rounded-lg w-48 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                       placeholder="車番を入力"
+                       placeholder="飛びつかれラインを入力"
+                       aria-label="飛びつかれライン入力欄"
                        required>
-                <p id="error2" class="text-red-500 text-sm mt-1 hidden">この項目は必須です</p>
+                <p id="tobareLineError" class="text-red-500 text-sm mt-1 hidden">飛びつかれラインは必須です</p>
             </div>
             
             <div class="flex flex-col items-center">
-                <label for="number3" class="text-gray-600 mb-2 font-medium">
+                <label for="tanki" class="text-gray-600 mb-2 font-medium">
                     単騎 (任意)
                 </label>
                 <input type="tel" 
                        inputmode="numeric" 
                        pattern="[0-9]*"
-                       id="number3" 
+                       id="tanki" 
+                       name="tanki"
                        class="px-4 py-2 border border-gray-300 rounded-lg w-48 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                       placeholder="車番を入力（任意）">
+                       placeholder="単騎を入力（任意）"
+                       aria-label="単騎入力欄">
             </div>
         </div>
 
         <div id="generalError" class="mt-4 text-red-500 text-sm hidden">
-            必須項目を入力してください
+            飛びつきラインと飛びつかれラインは必須です
         </div>
     </div>
 
-    <button id="myButton" 
-            class="mt-8 px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 active:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-150 shadow-md">
-        模範目を生成
+    <button id="generateButton" 
+            class="mt-8 px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 active:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-150 shadow-md"
+            aria-label="買い目生成ボタン">
+        買い目を生成
     </button>
     <div class="mt-6 flex items-center justify-center gap-4">
-        <div id="result" class="text-xl font-semibold text-gray-700"></div>
+        <div id="result" class="text-xl font-semibold text-gray-700" aria-live="polite"></div>
         <button id="copyButton" 
-                class="px-4 py-2 bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 active:bg-gray-700 transition-all duration-150 hidden">
+                class="px-4 py-2 bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 active:bg-gray-700 transition-all duration-150 hidden"
+                aria-label="買い目をコピー">
             コピー
         </button>
     </div>
-    <div id="copyMessage" class="mt-2 text-green-600 hidden">コピーしました！</div>
+    <div id="copyMessage" class="mt-2 text-green-600 hidden" aria-live="polite">コピーしました！</div>
     <script src="script.js"></script>
 </body>
 </html>
