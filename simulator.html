@@ -39,21 +39,25 @@
         <label for="link-input-1">ライン1: </label>
         <input type="text" id="link-input-1" placeholder="例: 123">
         <button onclick="linkPieces('link-input-1')">連結</button>
+        <button onclick="unlinkPieces('link-input-1')">解除</button>
     </div>
     <div>
         <label for="link-input-2">ライン2: </label>
         <input type="text" id="link-input-2" placeholder="例: 456">
         <button onclick="linkPieces('link-input-2')">連結</button>
+        <button onclick="unlinkPieces('link-input-2')">解除</button>
     </div>
     <div>
         <label for="link-input-3">ライン3: </label>
         <input type="text" id="link-input-3" placeholder="例: 789">
         <button onclick="linkPieces('link-input-3')">連結</button>
+        <button onclick="unlinkPieces('link-input-3')">解除</button>     
     </div>
     <div>
         <label for="link-input-4">ライン4: </label>
         <input type="text" id="link-input-4" placeholder="番号を入力">
         <button onclick="linkPieces('link-input-4')">連結</button>
+        <button onclick="unlinkPieces('link-input-4')">解除</button>
     </div>
     <div id="canvas-container">
         <img id="base-image" src="bank.jpg" alt="Base">
@@ -122,6 +126,20 @@
             });
             let group = numbers.map(num => pieces[num]);
             group.forEach(p => linkedGroups.set(p, group));
+        }
+
+        function unlinkPieces(inputId) {
+            const input = document.getElementById(inputId).value;
+            const numbers = input.split(/\s*/).map(num => parseInt(num.trim(), 10) - 1)
+                .filter(num => num >= 0 && num < numPieces);
+            
+            numbers.forEach(num => {
+                const piece = pieces[num];
+                if (linkedGroups.has(piece)) {
+                    const group = linkedGroups.get(piece);
+                    group.forEach(p => linkedGroups.delete(p));
+                }
+            });
         }
 
         function saveImage() {
