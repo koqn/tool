@@ -58,8 +58,10 @@
     <div id="canvas-container">
         <img id="base-image" src="bank.jpg" alt="Base">
     </div>
-    <button onclick="saveImage()">画像として保存</button>
-    <button onclick="shareConfig()">URLを生成</button>
+    <div style="display: flex; flex-direction: column; gap: 10px; align-items: center; margin-top: 10px;">
+        <button onclick="saveImage()">画像として保存</button>
+        <button onclick="shareConfig()">URLを生成</button>
+    </div>
     <script>
         const container = document.getElementById("canvas-container");
         const numPieces = 9;
