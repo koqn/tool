@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シミュレーター</title>
+    <style>
+        body { text-align: center; }
+        #canvas-container { position: relative; display: inline-block; }
+        #base-image { width: 500px; height: auto; display: block; }
+        .piece {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            border-radius: 50%;
+            cursor: grab;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+        }
+        .piece-1 { background: white; color: black; }
+        .piece-2 { background: black; color: white; }
+        .piece-3 { background: red; }
+        .piece-4 { background: blue; }
+        .piece-5 { background: yellow; color: black; }
+        .piece-6 { background: green; }
+        .piece-7 { background: orange; }
+        .piece-8 { background: pink; }
+        .piece-9 { background: purple; }
+    </style>
+</head>
+<body>
+    <h1>競輪シミュレーター</h1>
+    <div id="canvas-container">
+        <img id="base-image" src="bank.jpg" alt="Base">
+        <div id="pieces"></div>
+    </div>
+    <button onclick="saveImage()">画像として保存</button>
+    <button onclick="shareConfig()">URLを生成</button>
+    <script>
+        const container = document.getElementById("canvas-container");
+        const numPieces = 9;
+        const params = new URLSearchParams(window.location.search);
+
+        function createPiece(index, x = 50, y = 50) {
+            const piece = document.createElement("div");
+            piece.className = `piece piece-${index + 1}`;
+            piece.style.left = `${x}px`;
+            piece.style.top = `${y}px`;
+            piece.textContent = index + 1;
+            container.appendChild(piece);
+
+            piece.onmousedown = (e) => {
+                e.preventDefault();
+                let offsetX = e.clientX - piece.offsetLeft;
+                let offsetY = e.clientY - piece.offsetTop;
+                
+                const movePiece = (event) => {
+                    piece.style.left = `${event.clientX - offsetX}px`;
+                    piece.style.top = `${event.clientY - offsetY}px`;
+                };
+                
+                const stopMove = () => {
+                    document.removeEventListener("mousemove", movePiece);
+                    document.removeEventListener("mouseup", stopMove);
+                };
+                
+                document.addEventListener("mousemove", movePiece);
+                document.addEventListener("mouseup", stopMove);
+            };
+        }
+
+        function loadFromURL() {
+            if (params.has("positions")) {
+                const positions = params.get("positions").split(";").map(pos => pos.split(",").map(Number));
+                positions.forEach(([x, y], index) => createPiece(index, x, y));
+            } else {
+                for (let i = 0; i < numPieces; i++) createPiece(i, 50 + i * 40, 100);
+            }
+        }
+
+        function shareConfig() {
+            const positions = [...document.getElementsByClassName("piece")]
+                .map(piece => `${parseInt(piece.style.left)},${parseInt(piece.style.top)}`)
+                .join(";");
+            const newURL = `${window.location.origin}${window.location.pathname}?positions=${positions}`;
+            navigator.clipboard.writeText(newURL);
+            alert("URLをコピーしました！");
+        }
+
+        function saveImage() {
+            // ベース画像の読み込みを待つ
+            const baseImage = document.getElementById("base-image");
+            baseImage.crossOrigin = "anonymous";  // CORSの設定
+
+            html2canvas(container, {
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: null,
+                scale: 2,  // 高品質な出力のため
+                logging: true,  // デバッグ用
+                onclone: function(clonedDoc) {
+                    // クローンされた要素のスタイルを確実に適用
+                    clonedDoc.getElementById("base-image").style.width = "500px";
+                }
+            }).then(canvas => {
+                const link = document.createElement("a");
+                link.download = "layout.png";
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            }).catch(error => {
+                console.error("画像の保存に失敗しました:", error);
+                alert("画像の保存に失敗しました。");
+            });
+        }
+
+        loadFromURL();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</body>
+</html>
