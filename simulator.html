@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>シミュレーター</title>
+    <title>競輪シミュレーター</title>
     <style>
         body { text-align: center; }
         #canvas-container { position: relative; display: inline-block; }
@@ -35,16 +35,36 @@
 </head>
 <body>
     <h1>競輪シミュレーター</h1>
+    <div>
+        <label for="link-input-1">ライン1: </label>
+        <input type="text" id="link-input-1" placeholder="例: 123">
+        <button onclick="linkPieces('link-input-1')">連結</button>
+    </div>
+    <div>
+        <label for="link-input-2">ライン2: </label>
+        <input type="text" id="link-input-2" placeholder="例: 456">
+        <button onclick="linkPieces('link-input-2')">連結</button>
+    </div>
+    <div>
+        <label for="link-input-3">ライン3: </label>
+        <input type="text" id="link-input-3" placeholder="例: 789">
+        <button onclick="linkPieces('link-input-3')">連結</button>
+    </div>
+    <div>
+        <label for="link-input-4">ライン4: </label>
+        <input type="text" id="link-input-4" placeholder="番号を入力">
+        <button onclick="linkPieces('link-input-4')">連結</button>
+    </div>
     <div id="canvas-container">
         <img id="base-image" src="bank.jpg" alt="Base">
-        <div id="pieces"></div>
     </div>
     <button onclick="saveImage()">画像として保存</button>
     <button onclick="shareConfig()">URLを生成</button>
     <script>
         const container = document.getElementById("canvas-container");
         const numPieces = 9;
-        const params = new URLSearchParams(window.location.search);
+        let pieces = [];
+        let linkedGroups = new Map();
 
         function createPiece(index, x = 50, y = 50) {
             const piece = document.createElement("div");
@@ -52,44 +72,54 @@
             piece.style.left = `${x}px`;
             piece.style.top = `${y}px`;
             piece.textContent = index + 1;
+            piece.dataset.index = index;
             container.appendChild(piece);
+            pieces[index] = piece;
 
-            piece.onmousedown = (e) => {
-                e.preventDefault();
-                let offsetX = e.clientX - piece.offsetLeft;
-                let offsetY = e.clientY - piece.offsetTop;
-                
-                const movePiece = (event) => {
-                    piece.style.left = `${event.clientX - offsetX}px`;
-                    piece.style.top = `${event.clientY - offsetY}px`;
-                };
-                
-                const stopMove = () => {
-                    document.removeEventListener("mousemove", movePiece);
-                    document.removeEventListener("mouseup", stopMove);
-                };
-                
-                document.addEventListener("mousemove", movePiece);
-                document.addEventListener("mouseup", stopMove);
+            piece.onmousedown = (e) => startDrag(e, piece);
+        }
+
+        function startDrag(e, piece) {
+            e.preventDefault();
+            let offsetX = e.clientX - piece.offsetLeft;
+            let offsetY = e.clientY - piece.offsetTop;
+            let group = linkedGroups.get(piece) || [piece];
+
+            const movePiece = (event) => {
+                let dx = event.clientX - offsetX - piece.offsetLeft;
+                let dy = event.clientY - offsetY - piece.offsetTop;
+                group.forEach(p => {
+                    p.style.left = `${p.offsetLeft + dx}px`;
+                    p.style.top = `${p.offsetTop + dy}px`;
+                });
             };
+
+            const stopMove = () => {
+                document.removeEventListener("mousemove", movePiece);
+                document.removeEventListener("mouseup", stopMove);
+            };
+
+            document.addEventListener("mousemove", movePiece);
+            document.addEventListener("mouseup", stopMove);
         }
 
-        function loadFromURL() {
-            if (params.has("positions")) {
-                const positions = params.get("positions").split(";").map(pos => pos.split(",").map(Number));
-                positions.forEach(([x, y], index) => createPiece(index, x, y));
-            } else {
-                for (let i = 0; i < numPieces; i++) createPiece(i, 50 + i * 40, 100);
-            }
-        }
+        function linkPieces(inputId) {
+            const input = document.getElementById(inputId).value;
+            const numbers = input.split(/\s*/).map(num => parseInt(num.trim(), 10) - 1).filter(num => num >= 0 && num < numPieces);
+            if (numbers.length < 2) return;
+            let basePiece = pieces[numbers[0]];
+            let x = basePiece.offsetLeft;
+            let y = basePiece.offsetTop;
 
-        function shareConfig() {
-            const positions = [...document.getElementsByClassName("piece")]
-                .map(piece => `${parseInt(piece.style.left)},${parseInt(piece.style.top)}`)
-                .join(";");
-            const newURL = `${window.location.origin}${window.location.pathname}?positions=${positions}`;
-            navigator.clipboard.writeText(newURL);
-            alert("URLをコピーしました！");
+            numbers.forEach((num, i) => {
+                let piece = pieces[num];
+                if (i > 0) {
+                    piece.style.left = `${x + i * 25}px`;
+                    piece.style.top = `${y}px`;
+                }
+            });
+            let group = numbers.map(num => pieces[num]);
+            group.forEach(p => linkedGroups.set(p, group));
         }
 
         function saveImage() {
@@ -117,7 +147,61 @@
                 alert("画像の保存に失敗しました。");
             });
         }
+        // URLパラメータから位置を読み込む
+        function loadFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const positions = params.get('pos');
+            const links = params.get('links');
+            
+            if (positions) {
+                const coords = positions.split(',');
+                for (let i = 0; i < Math.min(coords.length / 2, numPieces); i++) {
+                    const x = parseInt(coords[i * 2]);
+                    const y = parseInt(coords[i * 2 + 1]);
+                    createPiece(i, x, y);
+                }
+            } else {
+                // デフォルトの配置
+                for (let i = 0; i < numPieces; i++) createPiece(i, 50 + i * 20, 100);
+            }
 
+            if (links) {
+                const linkGroups = links.split(';');
+                linkGroups.forEach(group => {
+                    const numbers = group.split('-');
+                    if (numbers.length >= 2) {
+                        const inputId = 'link-input-1';  // 一時的な入力欄を使用
+                        document.getElementById(inputId).value = numbers.join('');
+                        linkPieces(inputId);
+                    }
+                });
+            }
+        }
+
+        function shareConfig() {
+            const positions = pieces.map(p => `${p.offsetLeft},${p.offsetTop}`).join(',');
+            
+            // リンクグループの作成
+            const linkedSets = new Set();
+            linkedGroups.forEach((group, piece) => {
+                const sortedGroup = group.map(p => parseInt(p.dataset.index) + 1).sort().join('-');
+                linkedSets.add(sortedGroup);
+            });
+            const links = Array.from(linkedSets).join(';');
+            
+            const params = new URLSearchParams();
+            params.set('pos', positions);
+            if (links) params.set('links', links);
+            
+            const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+            
+            // URLをクリップボードにコピー
+            navigator.clipboard.writeText(url).then(() => {
+                alert('URLをクリップボードにコピーしました');
+            });
+        }
+
+        // 初期化時にURLから読み込む
         loadFromURL();
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
