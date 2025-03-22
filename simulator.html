@@ -44,29 +44,45 @@
             <div class="col-md-6">
                 <div class="input-group mb-3">
                     <span class="input-group-text">ライン1</span>
-                    <input type="text" class="form-control" id="link-input-1" placeholder="例: 123">
-                    <button class="btn btn-primary" onclick="linkPieces('link-input-1')">連結</button>
+                    <input type="number" 
+                           class="form-control" 
+                           id="link-input-1" 
+                           placeholder="例: 123" 
+                           pattern="[0-9]*" 
+                           inputmode="numeric">                    <button class="btn btn-primary" onclick="linkPieces('link-input-1')">連結</button>
                     <button class="btn btn-danger" onclick="unlinkPieces('link-input-1')">解除</button>
                 </div>
 
                 <div class="input-group mb-3">
                     <span class="input-group-text">ライン2</span>
-                    <input type="text" class="form-control" id="link-input-2" placeholder="例: 456">
-                    <button class="btn btn-primary" onclick="linkPieces('link-input-2')">連結</button>
+                    <input type="number" 
+                           class="form-control" 
+                           id="link-input-2" 
+                           placeholder="例: 456" 
+                           pattern="[0-9]*" 
+                           inputmode="numeric">                    <button class="btn btn-primary" onclick="linkPieces('link-input-2')">連結</button>
                     <button class="btn btn-danger" onclick="unlinkPieces('link-input-2')">解除</button>
                 </div>
 
                 <div class="input-group mb-3">
                     <span class="input-group-text">ライン3</span>
-                    <input type="text" class="form-control" id="link-input-3" placeholder="例: 789">
-                    <button class="btn btn-primary" onclick="linkPieces('link-input-3')">連結</button>
+                    <input type="number" 
+                           class="form-control" 
+                           id="link-input-3" 
+                           placeholder="例: 789" 
+                           pattern="[0-9]*" 
+                           inputmode="numeric">                    <button class="btn btn-primary" onclick="linkPieces('link-input-3')">連結</button>
                     <button class="btn btn-danger" onclick="unlinkPieces('link-input-3')">解除</button>
                 </div>
 
                 <div class="input-group mb-3">
                     <span class="input-group-text">ライン4</span>
-                    <input type="text" class="form-control" id="link-input-4" placeholder="番号を入力">
-                    <button class="btn btn-primary" onclick="linkPieces('link-input-4')">連結</button>
+                    <input type="number" 
+                           class="form-control" 
+                           id="link-input-4" 
+                           placeholder="番号を入力" 
+                           pattern="[0-9]*" 
+                           inputmode="numeric">                    <button class="btn btn-primary" onclick="linkPieces('link-input-4')">連結</button>
                     <button class="btn btn-danger" onclick="unlinkPieces('link-input-4')">解除</button>
                 </div>
             </div>
