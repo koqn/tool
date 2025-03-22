@@ -84,6 +84,38 @@
         let pieces = [];
         let linkedGroups = new Map();
 
+        function startDrag(e, piece) {
+            e.preventDefault();
+            const isTouchEvent = e.type.startsWith('touch');
+            const event = isTouchEvent ? e.touches[0] : e;
+            
+            let offsetX = event.clientX - piece.offsetLeft;
+            let offsetY = event.clientY - piece.offsetTop;
+            let group = linkedGroups.get(piece) || [piece];
+
+            const movePiece = (event) => {
+                const moveEvent = event.type.startsWith('touch') ? event.touches[0] : event;
+                let dx = moveEvent.clientX - offsetX - piece.offsetLeft;
+                let dy = moveEvent.clientY - offsetY - piece.offsetTop;
+                group.forEach(p => {
+                    p.style.left = `${p.offsetLeft + dx}px`;
+                    p.style.top = `${p.offsetTop + dy}px`;
+                });
+            };
+
+            const stopMove = () => {
+                document.removeEventListener('mousemove', movePiece);
+                document.removeEventListener('mouseup', stopMove);
+                document.removeEventListener('touchmove', movePiece);
+                document.removeEventListener('touchend', stopMove);
+            };
+
+            document.addEventListener('mousemove', movePiece);
+            document.addEventListener('mouseup', stopMove);
+            document.addEventListener('touchmove', movePiece);
+            document.addEventListener('touchend', stopMove);
+        }
+
         function createPiece(index, x = 50, y = 50) {
             const piece = document.createElement("div");
             piece.className = `piece piece-${index + 1}`;
@@ -95,30 +127,7 @@
             pieces[index] = piece;
 
             piece.onmousedown = (e) => startDrag(e, piece);
-        }
-
-        function startDrag(e, piece) {
-            e.preventDefault();
-            let offsetX = e.clientX - piece.offsetLeft;
-            let offsetY = e.clientY - piece.offsetTop;
-            let group = linkedGroups.get(piece) || [piece];
-
-            const movePiece = (event) => {
-                let dx = event.clientX - offsetX - piece.offsetLeft;
-                let dy = event.clientY - offsetY - piece.offsetTop;
-                group.forEach(p => {
-                    p.style.left = `${p.offsetLeft + dx}px`;
-                    p.style.top = `${p.offsetTop + dy}px`;
-                });
-            };
-
-            const stopMove = () => {
-                document.removeEventListener("mousemove", movePiece);
-                document.removeEventListener("mouseup", stopMove);
-            };
-
-            document.addEventListener("mousemove", movePiece);
-            document.addEventListener("mouseup", stopMove);
+            piece.ontouchstart = (e) => startDrag(e, piece);  // タッチイベントを追加
         }
 
         function linkPieces(inputId) {
