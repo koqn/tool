@@ -1,0 +1,141 @@
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飛びつき過去データ検索</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- データファイルの読み込み -->
+    <script src="tobidata.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center mb-8">飛びつき過去データ検索</h1>
+        
+        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+            <form id="searchForm" class="space-y-4">
+                <div>
+                    <label for="searchKey" class="block text-sm font-medium text-gray-700">飛びつき候補</label>
+                    <input type="text" id="searchKey" name="searchKey" 
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                           required>
+                </div>
+                <button type="submit" 
+                        class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    検索
+                </button>
+            </form>
+        </div>
+
+        <div id="result" class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-md p-6 hidden">
+            <h2 class="text-xl font-semibold mb-4">検索結果</h2>
+            <div id="resultContent" class="space-y-2"></div>
+        </div>
+    </div>
+
+    <script>
+        // 競輪場コードとURLのマッピング
+        const place = {
+            "11":"hakodate", "12":"aomori", "13":"iwakidaira",
+            "21":"yahiko", "22":"maebashi", "23":"toride", "24":"utsunomiya", "25":"omiya", "26":"seibuen", "27":"keiokaku", "28":"tachikawa",
+            "31":"matsudo", "32":"chiba", "34":"kawasaki", "35":"hiratsuka", "36":"odawara", "37":"ito", "38":"shizuoka",
+            "42":"nagoya", "43":"gifu", "44":"ogaki", "45":"toyohashi", "46":"toyama", "47":"matsusaka", "48":"yokkaichi",
+            "51":"fukui", "53":"nara", "54":"mukomachi", "55":"wakayama", "56":"kishiwada",
+            "61":"tamano", "62":"hiroshima", "63":"hofu",
+            "71":"takamatsu", "73":"komatsushima", "74":"kochi", "75":"matsuyama",
+            "81":"kokura", "83":"kurume", "84":"takeo", "85":"sasebo", "86":"beppu", "87":"kumamoto",
+        };
+
+        // レースIDからURLを生成する関数
+        function generateRaceUrl(raceId) {
+            const id = String(raceId).slice(0, -4);
+            const other = String(raceId).slice(-4);
+            const placeCode = id.slice(-2);
+            const placeName = place[placeCode];
+            
+            if (!placeName) return raceId; // 競輪場コードが見つからない場合は元のIDを返す
+            
+            return `https://www.winticket.jp/keirin/${placeName}/raceresult/${id}/${parseInt(other.slice(0, 2))}/${parseInt(other.slice(2))}`;
+        }
+
+        // URLからGETパラメータを取得する関数
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // ページ読み込み時の処理
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchKey = getUrlParameter('racer');
+            if (searchKey) {
+                document.getElementById('searchKey').value = searchKey;
+                // フォームを自動送信
+                document.getElementById('searchForm').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const searchKey = document.getElementById('searchKey').value;
+            const resultDiv = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+
+            try {
+                const foundData = tobidata[searchKey];
+                
+                if (foundData && Array.isArray(foundData)) {
+                    resultDiv.classList.remove('hidden');
+                    
+                    // テーブルのヘッダーを作成
+                    const headers = Object.keys(foundData[0]);
+                    const tableHeader = headers.map(header => `<th class="px-4 py-2 bg-gray-100">${header}</th>`).join('');
+                    
+                    // テーブルの行を作成
+                    const tableRows = foundData.map(row => {
+                        const cells = headers.map(header => {
+                            let cellContent = row[header];
+                            // レースIDのカラムの場合、URLに変換
+                            if (header === 'レースID') {
+                                const url = generateRaceUrl(row[header]);
+                                cellContent = `<a href="${url}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">${row[header]}</a>`;
+                            }
+                            return `<td class="px-4 py-2 border">${cellContent}</td>`;
+                        }).join('');
+                        return `<tr>${cells}</tr>`;
+                    }).join('');
+
+                    resultContent.innerHTML = `
+                        <div class="p-4 bg-green-50 rounded-md">
+                            <p class="font-medium mb-4">飛びつき候補: ${searchKey}</p>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white border">
+                                    <thead>
+                                        <tr>${tableHeader}</tr>
+                                    </thead>
+                                    <tbody>
+                                        ${tableRows}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.classList.remove('hidden');
+                    resultContent.innerHTML = `
+                        <div class="p-4 bg-yellow-50 rounded-md">
+                            <p>該当するデータが見つかりませんでした。</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.classList.remove('hidden');
+                resultContent.innerHTML = `
+                    <div class="p-4 bg-red-50 rounded-md">
+                        <p>エラーが発生しました: ${error.message}</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
