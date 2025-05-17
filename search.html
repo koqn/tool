@@ -85,7 +85,10 @@
                 
                 if (foundData && Array.isArray(foundData)) {
                     resultDiv.classList.remove('hidden');
-                    
+
+                    // レースIDで降順ソート
+                    foundData.sort((a, b) => b['レースID'] - a['レースID']);
+
                     // テーブルのヘッダーを作成
                     const headers = Object.keys(foundData[0]);
                     const tableHeader = headers.map(header => `<th class="px-4 py-2 bg-gray-100">${header}</th>`).join('');
