@@ -85,40 +85,43 @@
                 
                 if (foundData && Array.isArray(foundData)) {
                     resultDiv.classList.remove('hidden');
-
+                    
                     // レースIDで降順ソート
                     foundData.sort((a, b) => b['レースID'] - a['レースID']);
-
-                    // テーブルのヘッダーを作成
-                    const headers = Object.keys(foundData[0]);
-                    const tableHeader = headers.map(header => `<th class="px-4 py-2 bg-gray-100">${header}</th>`).join('');
                     
-                    // テーブルの行を作成
-                    const tableRows = foundData.map(row => {
-                        const cells = headers.map(header => {
-                            let cellContent = row[header];
-                            // レースIDのカラムの場合、URLに変換
-                            if (header === 'レースID') {
-                                const url = generateRaceUrl(row[header]);
-                                cellContent = `<a href="${url}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">${row[header]}</a>`;
-                            }
-                            return `<td class="px-4 py-2 border">${cellContent}</td>`;
-                        }).join('');
-                        return `<tr>${cells}</tr>`;
-                    }).join('');
-
                     resultContent.innerHTML = `
                         <div class="p-4 bg-green-50 rounded-md">
                             <p class="font-medium mb-4">飛びつき候補: ${searchKey}</p>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full bg-white border">
-                                    <thead>
-                                        <tr>${tableHeader}</tr>
-                                    </thead>
-                                    <tbody>
-                                        ${tableRows}
-                                    </tbody>
-                                </table>
+                            <div class="space-y-4">
+                                ${foundData.map(row => {
+                                    const raceUrl = generateRaceUrl(row['レースID']);
+                                    return `
+                                        <div class="bg-white p-4 rounded-lg shadow">
+                                            <div class="flex flex-col space-y-2">
+                                                <div class="flex items-center justify-between">
+                                                    <a href="${raceUrl}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline font-medium">${row['レースID']}</a>
+                                                </div>
+                                                <div class="bg-gray-50 p-2 rounded text-sm">
+                                                    <span class="font-medium">コメント:</span> ${row['コメント'] || '-'}
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-2 text-sm">
+                                                    <div class="bg-gray-50 p-2 rounded">
+                                                        <span class="font-medium">並び予想:</span> ${row['並び予想'] || '-'}
+                                                    </div>
+                                                    <div class="bg-gray-50 p-2 rounded">
+                                                        <span class="font-medium">結果:</span> ${row['結果'] || '-'}
+                                                    </div>
+                                                    <div class="bg-gray-50 p-2 rounded">
+                                                        <span class="font-medium">払戻:</span> ${row['払戻'] || '-'}
+                                                    </div>
+                                                    <div class="bg-gray-50 p-2 rounded">
+                                                        <span class="font-medium">当たり目:</span> ${row['当たり目'] || '-'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
                             </div>
                         </div>
                     `;
