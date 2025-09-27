@@ -1,4 +1,4 @@
-vat tobidata = {
+var tobidata = {
   "川村晃司": [
     {
       "レースID": "20250301350306",
